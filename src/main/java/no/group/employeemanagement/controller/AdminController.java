@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import no.group.employeemanagement.dto.AdminDto;
 import no.group.employeemanagement.dto.ProfileUpdateDto;
+import no.group.employeemanagement.dto.RegisterDto;
 import no.group.employeemanagement.model.Admin;
 import no.group.employeemanagement.service.AdminService;
 import no.group.employeemanagement.service.AuthService;
@@ -31,25 +32,25 @@ public class AdminController {
     private final AdminService adminService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AdminDto>> getAllAdmins() {
         return ResponseEntity.ok(adminService.getAllAdmins());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminDto> getAdminById(@PathVariable Long id) {
         return ResponseEntity.ok(adminService.getAdminById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AdminDto> createAdmin(@Valid @RequestBody AdminDto adminDto) throws BadRequestException {
-        return new ResponseEntity<>(adminService.createAdmin(adminDto), HttpStatus.CREATED);
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RegisterDto> createAdmin(@Valid @RequestBody RegisterDto registerDto) throws BadRequestException {
+        return new ResponseEntity<>(adminService.createAdmin(registerDto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminDto> updateAdmin(
             @PathVariable Long id,
             @Valid @RequestBody AdminDto adminDto) throws BadRequestException {
@@ -57,7 +58,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
         adminService.deleteAdmin(id);
         return ResponseEntity.noContent().build();

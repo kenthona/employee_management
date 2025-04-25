@@ -1,18 +1,21 @@
 package no.group.employeemanagement.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import no.group.employeemanagement.dto.RegisterDto;
 import no.group.employeemanagement.exceptions.ResourceNotFoundException;
 import no.group.employeemanagement.constant.Constant;
 import no.group.employeemanagement.dto.AdminDto;
 import no.group.employeemanagement.dto.ProfileUpdateDto;
 import no.group.employeemanagement.model.Admin;
 import no.group.employeemanagement.repository.AdminRepository;
+import no.group.employeemanagement.security.Role;
 import no.group.employeemanagement.service.AdminService;
 import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,14 +41,29 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public AdminDto createAdmin(AdminDto adminDto) throws BadRequestException {
+    public RegisterDto createAdmin(RegisterDto adminDto) throws BadRequestException {
         if (adminRepository.existsByEmail(adminDto.getEmail())) {
             throw new BadRequestException("Email already in use");
         }
+        if (adminRepository.existsByEmail(adminDto.getEmail())) {
+            throw new BadRequestException("Email sudah digunakan.");
+        }
 
-        Admin admin = modelMapper.map(adminDto, Admin.class);
+        // Convert DTO ke Entity
+        Admin admin = new Admin();
+        admin.setFirstName(adminDto.getFirstName());
+        admin.setLastName(adminDto.getLastName());
+        admin.setEmail(adminDto.getEmail());
+        admin.setBirthDate(adminDto.getBirthDate());
+        admin.setGender(adminDto.getGender());
         admin.setPassword(passwordEncoder.encode(adminDto.getPassword()));
-        return modelMapper.map(adminRepository.save(admin), AdminDto.class);
+        admin.setRole(Role.ADMIN);
+        admin.setLastLogoutTime(LocalDateTime.now());
+
+        // Simpan ke database
+        Admin savedAdmin = adminRepository.save(admin);
+
+        return toDto(savedAdmin);
     }
 
     @Override
@@ -83,5 +101,16 @@ public class AdminServiceImpl implements AdminService {
             admin.setPassword(passwordEncoder.encode(profileUpdateDto.getPassword()));
         }
         return modelMapper.map(adminRepository.save(admin), AdminDto.class);
+    }
+
+    private RegisterDto toDto(Admin admin) {
+        RegisterDto dto = new RegisterDto();
+        dto.setId(admin.getId());
+        dto.setFirstName(admin.getFirstName());
+        dto.setLastName(admin.getLastName());
+        dto.setEmail(admin.getEmail());
+        dto.setBirthDate(admin.getBirthDate());
+        dto.setGender(admin.getGender());
+        return dto;
     }
 }
